@@ -1,11 +1,28 @@
 import { loadPageFromStorage, handleNavigation, updateIframe } from "./menuHandler.js";
 
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ DOM fully loaded");
 
     const menuBtn = document.querySelector(".menu-icon");
     const sideMenuCtn = document.querySelector(".custom-container");
     const iframe = document.querySelector("iframe");
+
+    
+
+
+    window.addEventListener("load", function () {
+        sessionStorage.setItem("reloaded", "true");
+    
+        const iframe = document.querySelector("iframe");
+        if (iframe) {
+            iframe.src = "../ppss-login/dashboard-ppss.html";
+        }
+    
+        localStorage.setItem("currentPage", "dashboard"); // Reset stored page
+    });
 
     // 🏆 Menu toggle functionality
     if (menuBtn && sideMenuCtn) {

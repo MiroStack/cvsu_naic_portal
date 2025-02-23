@@ -23,10 +23,10 @@ document.addEventListener("DOMContentLoaded", function () {
             lastname: data.lastname,
             username: data.username,
             password: data.password,
-            canCreateAccount: data.canCreateAccount,
+            canCreateAccount: data.canCreateAccount ?? false,
             createdById: userData.id
         });
-        console.log(queryParams);
+        console.log(queryParams.canCreateAccount);
 
         try {
             const response = await fetch(`http://localhost:8080/cvsu/addAccount?${queryParams}`, {

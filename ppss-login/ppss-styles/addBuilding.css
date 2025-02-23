@@ -100,6 +100,10 @@ body {
     flex-grow: 1;
     margin-right: 10px;
   }
+
+  .save-btn{
+    background-color: #2d2afc;
+  }
   
   button {
     margin-top: 10px;
@@ -134,7 +138,7 @@ body {
     color: #d32f2f;
   }
   
-  .edit-container {
+  .add-container {
     max-width: 800px;
     margin: 20px auto;
     padding: 20px;
@@ -143,24 +147,24 @@ body {
     border-radius: 8px;
   }
   
-  .edit-container form {
+  .add-container form {
     display: flex;
     flex-direction: column;
   }
   
-  .edit-container label {
+  .add-container label {
     margin-top: 15px;
   }
   
-  .edit-container input[type="text"],
-  .edit-container textarea {
+  .add-container input[type="text"],
+  .add-container textarea {
     width: 100%;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
   }
   
-  .edit-container button {
+  .add-container button {
     padding: 12px;
     font-size: 16px;
   }

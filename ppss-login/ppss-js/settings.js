@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new FormData(form);
         
         const data = {
+            currentPassword: formData.get("currentPassword"),
             newUsername: formData.get("newUsername"),
             newPassword: formData.get("password"),
             confirmPassword: formData.get("confirmPassword")
@@ -19,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             const queryParams = new URLSearchParams({
                 username: data.newUsername,
+                currentPassword: data.currentPassword,
                 password: data.newPassword,
                 id: userData.id
             });
