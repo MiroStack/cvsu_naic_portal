@@ -1,14 +1,42 @@
+import { baseUrl, dashboard, setToken } from "../../scripts/main.js";
+
+
 const loginBtn = document.getElementById("loginBtn");
 const registerBtn = document.querySelector("#register");
 const loginForm = document.querySelector(".login-form");
 const registerForm = document.querySelector(".register-form");
 const username = document.getElementById("username");
 const password = document.getElementById("password");
+const authToken = sessionStorage.getItem("authToken");
+const loadingContainer = document.querySelector(".container-loader");
+const formContainer = document.querySelector(".form-container")
 
-// Redirect if already logged in
-if (localStorage.getItem("token") !== null) {
-    window.location.href = "/ppss-login/ppss_main.html";
+
+const validateToken = async (authToken)=>{
+    try{
+       const response = await fetch(`${baseUrl}/validate?token=${authToken}`,{
+        method:"GET",
+        headers: { "Content-Type": "application/json" },
+        mode:"cors"
+       })
+       const data = await response.json(); // ✅ Call response.json()
+        
+        if (data) {
+            console.log(data); // ✅ Now this should print
+            sessionStorage.setItem("user", JSON.stringify(data));
+            dashboard();
+        }
+    } catch (error) {
+        alert("Error:", error);
+    }
 }
+
+if(authToken){
+
+    validateToken(authToken);
+}
+
+
 
 // Initial form state
 document.addEventListener("DOMContentLoaded", () => {
@@ -16,22 +44,21 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.style.opacity = 1;
     registerForm.style.left = "-50%";
     registerForm.style.opacity = 0;
+
+    
 });
 
 
-loginBtn.addEventListener("click", () => {
-    loginBtn.style.backgroundColor = "#0a5d00";
-    registerBtn.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
-    loginForm.style.left = "50%";
-    registerForm.style.left = "-50%";
-    loginForm.style.opacity = 1;
-    registerForm.style.opacity = 0;
-});
+
+
+
 
 // **Login Handler**
 document.getElementById("loginBtn").addEventListener("click", async () => {
     const usernameValue = username.value.trim();
     const passwordValue = password.value.trim();
+    loadingContainer.style.display = "flex";
+    formContainer.style.display = "none";
 
     if (usernameValue === "" || passwordValue === "") {
         alert("Please fill in all fields");
@@ -39,33 +66,35 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
     }
 
     console.log(typeof jQuery !== "undefined" ? "jQuery is loaded" : "jQuery is not loaded");
+    const userObject = {
+        username: usernameValue,
+        password: passwordValue
+    };
 
     try {
-        const response = await fetch(`http://localhost:8080/cvsu/login?username=${usernameValue}&password=${passwordValue}`, {
+        
+        const response = await fetch(`${baseUrl}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            body:JSON.stringify(userObject),
+            mode: "cors", // Enable CORS
         });
 
         if (response.ok) {
             const data = await response.text();
             console.log("Login Successful:", data);
-            localStorage.setItem("token", JSON.stringify(data));
-            localStorage.setItem("currentPage", "dashboard");
-            window.location.href = "/ppss-login/ppss_main.html";
-       
+            setToken(data);
+            validateToken(data);
         } else {
             alert("Invalid username or password");
         }
+        loadingContainer.style.display = "none";
+        formContainer.style.display = "flex";
     } catch (error) {
         console.error("Login failed:", error);
         alert("Something went wrong. Try again later.");
     }
 });
 
-// Prevent back navigation after login
-document.addEventListener("DOMContentLoaded", function () {
-    history.pushState(null, null, location.href);
-    window.onpopstate = function () {
-        history.pushState(null, null, location.href);
-    };
-});
+
+

@@ -1,8 +1,34 @@
-
+import {baseUrl, getToken, dashboard} from "../../scripts/main.js";
+ document.addEventListener("DOMContentLoaded", async () =>{
+ 
+  let buildingInfo;
+  const loadingContainer = document.querySelector(".container-loader");
+  const editBuildingForm = document.getElementById("editBuildingForm");
+  const token = getToken();
+  console.log(token);
   try{
+    loadingContainer.style.display = "flex";
+    editBuildingForm.style.display = "none";
+    const response = await fetch(`${baseUrl}/displayAllBldgAndRooms`,{
+      method: "GET",
+      headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+      },
+      mode: "cors", // Enable CORS
+    });
+
+    if(response.ok){
+      const result = await response.json();
+      buildingInfo = result;
+      loadingContainer.style.display = "none";
+      editBuildingForm.style.display = "flex";
+    }
+    else{
+      alert('Failed to load the building information.'); 
+    }  
     
     const selectBuildingList = document.getElementById("building-list");
-    const buildingInfo = JSON.parse(localStorage.getItem("bldgInfo"));
     const buildingNameList = buildingInfo.map(building => ({
       buildingName: building.buildingName,
       buildingId: building.buildingId
@@ -144,16 +170,21 @@
       if (confirmation) {
         const id = sampleBuilding.id;
         try{
-           const response = await fetch(`http://localhost:8080/cvsu/deleteBuilding?buildingId=${id}`,{
+          loadingContainer.style.display = "flex";
+          editBuildingForm.style.display = "none";
+           const response = await fetch(`${baseUrl}/deleteBuilding?buildingId=${id}`,{
              method: "DELETE",
-             headers:{
-              "Content-Type":"application/json"
-             }
+             headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+             },
+             mode: "cors", // Enable CORS
            });
            const result = await response.json();
+           loadingContainer.style.display = "none";
+           editBuildingForm.style.display = "block";
            alert(result.message);
-           localStorage.setItem("currentPage", "dashboard");
-           window.parent.postMessage({ action: "updateIframe", page: "dashboard" }, "*");
+           dashboard();
 
         }catch(e){
           alert("Error occured: "+e.message)
@@ -196,22 +227,24 @@
     }
     const saveBldgInfo = async (newBldgInfo)=> {
       try{
-        const response = await fetch(`http://localhost:8080/cvsu/updateBuildingAndRooms`,{
+        loadingContainer.style.display = "flex";
+        editBuildingForm.style.display = "none";
+        const response = await fetch(`${baseUrl}/updateBuildingAndRooms`,{
           method: "PUT",
           headers: {
-              "Content-Type": "application/json"
-          },
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+           },
+           mode: "cors", // Enable CORS
           body: JSON.stringify(newBldgInfo)
         });
     
         if(response.ok){
           const result = await response.json();
           alert(result.message);
-           // Store the new page in localStorage
-           localStorage.setItem("currentPage", "dashboard");
-
-           // 🔥 Send a message to the parent window (main.html)
-           window.parent.postMessage({ action: "updateIframe", page: "dashboard" }, "*");
+          loadingContainer.style.display = "none";
+          editBuildingForm.style.display = "block";
+         dashboard();
           
         }
         else{
@@ -228,3 +261,5 @@
     alert("Error occured: " + e.message);
   }
   
+
+ });

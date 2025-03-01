@@ -1,9 +1,14 @@
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("add_account_form").addEventListener("submit", async (event) => {
+import { baseUrl, getToken, dashboard } from "../../scripts/main.js";
+
+document.addEventListener("DOMContentLoaded", ()=>  {
+    const loaderContainer = document.querySelector(".container-loader");
+    const addAccountForm = document.getElementById("add_account_form");
+    const token = getToken();
+    addAccountForm.addEventListener("submit", async (event) => {
         event.preventDefault(); // Prevent default form submission
     
         const form = event.target; // Correct reference to the form
-        const userData = JSON.parse(localStorage.getItem('user')); // Get logged-in user data
+        const userData = JSON.parse(sessionStorage.getItem('user')); // Get logged-in user data
         const formData = new FormData(form);
         
         const data = {
@@ -29,23 +34,24 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(queryParams.canCreateAccount);
 
         try {
-            const response = await fetch(`http://localhost:8080/cvsu/addAccount?${queryParams}`, {
+            loaderContainer.style.display = "flex";
+            addAccountForm.style.display = "none";
+            const response = await fetch(`${baseUrl}/addAccount?${queryParams}`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
-                }
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                   },
+                   mode: "cors", // Enable CORS
             });
 
             if (response.ok) {
                 const result = await response.json();
                 alert(result.message);
                 form.reset();
-                
-                // Store the new page in localStorage
-                localStorage.setItem("currentPage", "dashboard");
-
-                // 🔥 Send a message to the parent window (main.html)
-                window.parent.postMessage({ action: "updateIframe", page: "dashboard" }, "*");
+                loaderContainer.style.display = "none";
+                addAccountForm.style.display = "block";
+                dashboard();
 
             } else {
                 const errorData = await response.json();

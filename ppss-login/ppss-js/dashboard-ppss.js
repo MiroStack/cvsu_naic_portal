@@ -1,22 +1,39 @@
+import { baseUrl, getToken, dashboard } from "../../scripts/main.js";
+
 document.addEventListener("DOMContentLoaded", async () =>{
+
+
+  const loadingContainer = document.querySelector(".container-loader");
+  const buildingsContainer = document.querySelector("#buildingsContainer");
+  let buildingInfo;
+  const token = getToken();
+  console.log(token);
+ 
     try{
-        const response = await fetch(`http://localhost:8080/cvsu/displayBuildingAndRooms`,{
+        loadingContainer.style.display = "flex"
+        buildingsContainer.style.display = "none"
+        const response = await fetch(`${baseUrl}/displayAllBldgAndRooms`,{
           method: "GET",
           headers: {
-              "Content-Type": "application/json"
-          }
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+          },
+          mode: "cors", // Enable CORS
         });
 
         if(response.ok){
           const result = await response.json();
-          localStorage.setItem("bldgInfo", JSON.stringify(result));
+           loadingContainer.style.display = "none"
+          buildingsContainer.style.display = "block"
+          buildingInfo = result;
+         
         }
         else{
           alert('Failed to load the building information.'); 
         }  
            
 
-        const buildingInfo = JSON.parse(localStorage.getItem("bldgInfo"));
+       
        // console.log(buildingInfo);
         const floorList = ["Ground Floor", "Second Floor", "Third Floor"];
     
@@ -54,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async () =>{
       
            
 
-            const buildingsContainer = document.getElementById("buildingsContainer")
+      
             const buildingVisibility = {}
 
             function createBuildingElement(building, index) {
@@ -233,22 +250,20 @@ document.addEventListener("DOMContentLoaded", async () =>{
                   }
 
                   try{
-                    const response = await fetch(`http://localhost:8080/cvsu/updateRoom`,{
+                    const response = await fetch(`${baseUrl}/updateRoom`,{
                        method:"PUT",
-                       headers:{
-                        "Content-Type":"application/json"
+                       headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
                        },
+                       mode: "cors", // Enable CORS
                        body:JSON.stringify(newRoomInfo)
                     });
                     if (response.ok) {
                       const result = await response.json();
                       alert(result.message);
       
-                      // Store the new page in localStorage
-                      localStorage.setItem("currentPage", "dashboard");
-      
-                      // 🔥 Send a message to the parent window (main.html)
-                      window.parent.postMessage({ action: "updateIframe", page: "dashboard" }, "*");
+                      dashboard();
       
                   } else {
                       const errorData = await response.json();
@@ -273,20 +288,19 @@ document.addEventListener("DOMContentLoaded", async () =>{
               const roomId = buildings[buildingIndex].floors[floorIndex].rooms[roomIndex].id;
               console.log(roomId);
                   try{
-                    const response = await fetch(`http://localhost:8080/cvsu/deleteRoom?roomId=${roomId}`,{
+                    const response = await fetch(`${baseUrl}/deleteRoom?roomId=${roomId}`,{
                        method:"DELETE",
-                       headers:{
-                        "Content-Type":"application/json"
-                       } 
+                       headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                       },
+                       mode: "cors", // Enable CORS
                     });
                     if(response.ok){
-                      const result =  await response.json();
-                      alert(result.message);
-                        // Store the new page in localStorage
-                        localStorage.setItem("currentPage", "dashboard");
-                        // 🔥 Send a message to the parent window (main.html)
-                        window.parent.postMessage({ action: "updateIframe", page: "dashboard" }, "*");
-        
+                        const result =  await response.json();
+                        alert(result.message);
+                        dashboard();
+                  
                     }
                     else{
                       const error = await response.json();

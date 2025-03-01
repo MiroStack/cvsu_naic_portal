@@ -1,9 +1,13 @@
+import { baseUrl, getToken, dashboard } from "../../scripts/main.js";
 
-try{
-    
-    const selectBuildingList = document.getElementById("building-list");
+document.addEventListener("DOMContentLoaded", ()=>{
+  const token = getToken();
+  const loaderContainer = document.querySelector(".container-loader");
+  const addBuildingForm = document.getElementById("addBuildingForm");
+  try{
     let floorList = ["Ground Floor", "Second Floor", " Third Floor"];
-    
+    console.log("addBuilding.js is loaded");
+
 
     // Function to add a room input
     function addRoomInput(room = { name: "", floor: "Ground Floor" }) {
@@ -84,22 +88,24 @@ try{
    
     const saveBldgInfo = async (newBldgInfo)=> {
       try{
-        const response = await fetch(`http://localhost:8080/cvsu/addBuildingAndRooms`,{
+        loaderContainer.style.display = "flex";
+        addBuildingForm.style.display = "none"
+        const response = await fetch(`${baseUrl}/addBuildingAndRooms`,{
           method: "POST",
           headers: {
-              "Content-Type": "application/json"
-          },
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+           },
+           mode: "cors", // Enable CORS
           body: JSON.stringify(newBldgInfo)
         });
     
         if(response.ok){
           const result = await response.json();
           alert(result.message);
-           // Store the new page in localStorage
-           localStorage.setItem("currentPage", "dashboard");
-
-           // 🔥 Send a message to the parent window (main.html)
-           window.parent.postMessage({ action: "updateIframe", page: "dashboard" }, "*");
+          loaderContainer.style.display = "none";
+          addBuildingForm.style.display = "block"
+          dashboard();
           
         }
         else{
@@ -116,3 +122,4 @@ try{
     alert("Error occured: " + e.message);
   }
   
+});
