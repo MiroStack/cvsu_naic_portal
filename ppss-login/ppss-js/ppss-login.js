@@ -1,4 +1,4 @@
-import { baseUrl, dashboard, setToken } from "/scripts/main.js";
+import { baseUrl, dashboard, setToken } from "../scripts/main.js";
 
 
 const loginBtn = document.getElementById("loginBtn");

@@ -1,4 +1,4 @@
-import { baseUrl, getToken, dashboard } from "/scripts/main.js";
+import { baseUrl, getToken, dashboard } from "../scripts/main.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     const loaderContainer = document.querySelector(".container-loader");
