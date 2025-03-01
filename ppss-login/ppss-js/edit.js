@@ -1,4 +1,5 @@
-import {baseUrl, getToken, dashboard} from "../../scripts/main.js";
+import { baseUrl, getToken, dashboard } from "/scripts/main.js";
+
  document.addEventListener("DOMContentLoaded", async () =>{
  
   let buildingInfo;
